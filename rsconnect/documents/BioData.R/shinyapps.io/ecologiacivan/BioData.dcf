@@ -1,0 +1,13 @@
+name: BioData
+title: BioData
+username:
+account: ecologiacivan
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 4215814
+bundleId: 4669940
+url: https://ecologiacivan.shinyapps.io/BioData/
+when: 1622660090.63054
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .RData|app.R|drive.R|index.html|valueBox.R

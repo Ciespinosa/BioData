@@ -1,0 +1,6 @@
+
+options(
+  gargle_oauth_cache = ".secrets",
+  gargle_oauth_email = "civan.espinosain@gmail.com")# run sheets auth
+  
+sheets_auth()
