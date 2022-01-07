@@ -253,7 +253,8 @@ server <- function(input, output) {
           lon = ~Y,
           coloraxis = 'coloraxis',
           radius = 2,
-          height = 450)
+          height = 460,
+          width = 800)
       
     }
     
@@ -273,7 +274,8 @@ server <- function(input, output) {
           hoverinfo = 'text',
           mode = 'markers',
           color = dta$Clase,
-          height = 450
+          height = 460,
+          width = 800
         ) 
     }
     
@@ -483,7 +485,7 @@ server <- function(input, output) {
       dta1 <- dta1 %>% subset(Pais==input$pais1)
       df <- as.data.frame.matrix(table(dta1$year,dta1$Clase))
     }
-    
+
     if(input$eco1!="TOTAL" & input$pais1=="TOTAL"){
       dta1 <- dta1 %>% subset(Bioma==input$eco1)
       df <- as.data.frame.matrix(table(dta1$year,dta1$Clase))
@@ -492,22 +494,22 @@ server <- function(input, output) {
       dta1 <- dta1 %>% subset(Bioma==input$eco1 & Pais==input$pais1)
       df <- as.data.frame.matrix(table(dta1$year,dta1$Clase))
       }
-    
+
     if(input$eco1=="TOTAL" & input$pais1=="TOTAL"){
       df <- as.data.frame.matrix(table(dta1$year,dta1$Clase))
       }
-    
-      fig1 <- plot_ly(df, x = ~rownames(df), y = ~AVES, type = 'bar', 
+
+      fig1 <- plot_ly(df, x = ~rownames(df), y = ~AVES, type = 'bar',
                       name = "Aves",
                       height = 310)
       fig1 <- fig1 %>% add_trace(y = ~AMPHIBIA, name = "Anfibios")
       fig1 <- fig1 %>% add_trace(y = ~MAMMALIA, name = "Mamíferos")
       fig1 <- fig1 %>% add_trace(y = ~PECES, name = "Peces")
       fig1 <- fig1 %>% add_trace(y = ~REPTILIA, name = "Reptiles")
-      
-      fig1 <- fig1 %>% layout(yaxis = list(title = 'Número', 
-                                           tickfont = list(size = 8)), 
-                              xaxis = list(title = "Año de Publicación", 
+
+      fig1 <- fig1 %>% layout(yaxis = list(title = 'Número',
+                                           tickfont = list(size = 8)),
+                              xaxis = list(title = "Año de Publicación",
                                            tickfont = list(size = 8)),
                               legend = list(x = .05, y = .99,
                                             font = list(
@@ -519,46 +521,50 @@ server <- function(input, output) {
       fig1
 
   })
+  
+
       output$distPlot3 <- renderPlotly({
         
         if(input$eco1=="TOTAL" & input$pais1!="TOTAL"){
-          dta1 <- dta1 %>% subset(Pais==input$pais1)
-          dfT <- as.data.frame.matrix(table(dta1$Tematica,dta1$Clase))
-         
-        }
-        
-        if(input$eco1!="TOTAL" & input$pais1=="TOTAL"){
-          dta1 <- dta1 %>% subset(Bioma==input$eco1)
-          dfT <- as.data.frame.matrix(table(dta1$Tematica,dta1$Clase))
-        }
-        if(input$eco1!="TOTAL" & input$pais1!="TOTAL"){
-          dta1 <- dta1 %>% subset(Bioma==input$eco1 &Pais==input$pais1)
-          dfT <- as.data.frame.matrix(table(dta1$Tematica,dta1$Clase))
-        }
-        
-        if(input$eco1=="TOTAL" & input$pais1=="TOTAL"){
-          dfT <- as.data.frame.matrix(table(dta1$Tematica,dta1$Clase))
+          dta1.1 <- dta1 %>% subset(Pais==input$pais1)
+          dfT1 <- dcast(dta1.1, Tematica~Clase)[-9,-7]
+
         }
 
-        fig2 <- plot_ly(dfT, x = ~rownames(dfT), y = ~AVES, type = 'bar', 
-                      name = "Aves",
-                      height = 310)
-        fig2 <- fig2 %>% add_trace(y = ~AMPHIBIA, name = "Anfibios")
-        fig2 <- fig2 %>% add_trace(y = ~MAMMALIA, name = "Mamiferos")
-        fig2 <- fig2 %>% add_trace(y = ~PECES, name = "Peces")
-        fig2 <- fig2 %>% add_trace(y = ~REPTILIA, name = "Reptiles")
-        fig2 <- fig2 %>% layout(yaxis = list(title = 'Número', 
-                                             tickfont = list(size = 8)), 
-                                xaxis = list(title = "", 
-                                             tickfont = list(size = 8)),
-                                legend = list(x = .8, y = .99,
-                                              font = list(
-                                                family = "sans-serif",
-                                                size = 8),
-                                              title=list(text='<b>Grupo taxonómico </b>',
-                                                         font = list(size = 9))),
-                                margin = list(l = 30, r = .20, b = 50, t = .10))
-        fig2
+        if(input$eco1!="TOTAL" & input$pais1=="TOTAL"){
+          dta1.1 <- dta1 %>% subset(Bioma==input$eco1)
+          dfT1 <- dcast(dta1.1, Tematica~Clase)[-9,-7]
+        }
+        if(input$eco1!="TOTAL" & input$pais1!="TOTAL"){
+          dta1.1 <- dta1 %>% subset(Bioma==input$eco1 &Pais==input$pais1)
+          dfT1 <- dcast(dta1.1, Tematica~Clase)[-9,-7]
+        }
+
+        if(input$eco1=="TOTAL" & input$pais1=="TOTAL"){
+          dfT1 <- dcast(dta1, Tematica~Clase)[-9,-7]
+        }
+  
+  fig2 <- plot_ly(dfT1, x = ~Tematica , y = ~AVES, type = 'bar',
+                name = "Aves",
+                height = 310)
+  fig2 <- fig2 %>% add_trace(y = ~AMPHIBIA, name = "Anfibios")
+  fig2 <- fig2 %>% add_trace(y = ~MAMMALIA, name = "Mamiferos")
+  fig2 <- fig2 %>% add_trace(y = ~PECES, name = "Peces")
+  fig2 <- fig2 %>% add_trace(y = ~REPTILIA, name = "Reptiles")
+  fig2 <- fig2 %>% layout(yaxis = list(title = 'Número',
+                                       tickfont = list(size = 8)),
+                          xaxis = list(title = "",
+                                       tickfont = list(size = 8)),
+                          legend = list(x = .8, y = .99,
+                                        font = list(
+                                          family = "sans-serif",
+                                          size = 8),
+                                        title=list(text='<b>Grupo taxonómico </b>',
+                                                   font = list(size = 9))),
+                          margin = list(l = 30, r = .20, b = 50, t = .10))
+  fig2
+        
+       
     
     })
       
@@ -613,8 +619,7 @@ server <- function(input, output) {
 
         textRT <- str_c(textR, textT, collapse = " ")
 
-        ptd <- PlainTextDocument(textRT,id = basename(tempfile()),
-                                 language = "en")
+        ptd <- PlainTextDocument(textRT,id = basename(tempfile()))
 
 
         myText <- Corpus(VectorSource(ptd))
@@ -692,8 +697,7 @@ server <- function(input, output) {
         library(shiny)
 
         textA <- str_c(na.omit(dta1.1$Autor), collapse = " ")
-        Aptd <- PlainTextDocument(textA,id = basename(tempfile()),
-                                  language = "en")
+        Aptd <- PlainTextDocument(textA,id = basename(tempfile()))
 
 
         myTextA <- Corpus(VectorSource(textA))

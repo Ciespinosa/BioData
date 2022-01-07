@@ -71,4 +71,6 @@ dta$Bioma[!dta$filtroE %in% secos] <- "Bosques lluviosos"
 
 #dta <- dta[complete.cases(dta[,c("filtroP", "filtroE")]),]
   
-write.csv2(dta, "2._data/dta.csv")
+#write.csv2()
+
+#readr::write_csv(dta, "2._data/dta.csv")

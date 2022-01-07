@@ -49,4 +49,7 @@ dta1$Bioma[!dta1$filtroE %in% secos] <- "Bosques lluviosos"
 
 dta1$Clase <- factor(dta1$Clase, levels = c( "AVES","AMPHIBIA", "MAMMALIA", "PECES", "REPTILIA"))
 
-write.csv2(dta1, "2._data/dta1.csv")
+#write.csv2(dta1, "2._data/dta1.csv", fileEncoding = "UTF-8")
+
+rm(list = setdiff(ls(), c("dta", "dta1")))
+save.image("data.RData")

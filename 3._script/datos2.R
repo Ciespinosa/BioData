@@ -1,11 +1,11 @@
 library(readxl)
-dta <- read_excel("2._data/VertebradosRT.xlsx", sheet = "Ubicacion")
+dtA <- read_excel("2._data/VertebradosRT.xlsx", sheet = "Ubicacion")
 clase <- read_excel("2._data/VertebradosRT.xlsx", sheet = "Taxonomia")
 tipo <- read_excel("2._data/VertebradosRT.xlsx", sheet = "Bibliografia")
 
 clase <- unique(clase[,c("Codigo", "Clase")])
 
-dta1 <- aggregate(dta[, c( "X","Y", "Pais")], by=list(Codigo = dta$Codigo), max)
+dta1 <- aggregate(dtA[, c( "X","Y", "Pais")], by=list(Codigo = dtA$Codigo), max)
 
 clase <- unique(clase[,c("Codigo", "Clase")])
 dta1 <- merge(dta1, clase[c("Codigo", "Clase")], by = "Codigo", all.x = T)
