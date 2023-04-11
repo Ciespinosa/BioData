@@ -1,0 +1,52 @@
+plot_geo(color = I("red")) %>%
+  add_markers(
+    data = dta, x = ~X, y = ~Y, text = ~Clase,
+    size = 1, hoverinfo = "text", alpha = 0.5
+  )
+
+# library(mapboxapi)
+# mb_access_token("pk.eyJ1IjoiY2llc3Bpbm9zYSIsImEiOiJjbDJob3l4MnowNGUyM2Nta2xkdHo5MmZ0In0.KbWKGL08hRc9bQAqX6TIEg", install = TRUE)
+
+
+Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1IjoiY2llc3Bpbm9zYSIsImEiOiJjbDJob3l4MnowNGUyM2Nta2xkdHo5MmZ0In0.KbWKGL08hRc9bQAqX6TIEg')
+
+fig <- as.data.frame(dta1) 
+
+fig <- fig %>%
+  plot_ly(
+    lat = ~X,
+    lon = ~Y,
+    type = 'scattermapbox',
+    text = paste("Código: ", dta1$Codigo, 
+                 "<br>Clase: ", dta1$Clase,
+                 "<br>Temática: ", dta1$Tematica,
+                 "<br>Bioma: ", dta1$filtroE),
+    hoverinfo = 'text',
+    mode = 'markers',
+    color = dta1$Clase,
+    height = 460,
+    width = 800
+  ) 
+
+fig
+
+
+library(tidyverse)
+library(plotly)
+
+set.seed(1)
+
+density <- sample(1:100, 50, replace = T)
+
+g <- list(
+  scope = 'south america',
+  projection = list(type = 'wgs84'),
+  lakecolor = toRGB('white')
+)
+
+plot_geo() %>%
+  add_trace(
+    z = ~density, text = state.name, span = I(0),
+    locations = state.abb, locationmode = 'USA-states'
+  ) %>%
+  layout(geo = g) 

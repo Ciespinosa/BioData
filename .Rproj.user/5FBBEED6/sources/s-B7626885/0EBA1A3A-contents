@@ -1,0 +1,943 @@
+library(shiny)
+library(shinydashboard)
+library(shinydashboardPlus)
+library(plotly)
+library(reshape2)
+
+
+
+# deauth
+
+source(file = "3._script/1.Datos.R", encoding = "UTF-8")
+
+
+header <- dashboardHeader(
+            title = "BioData")
+
+
+sidebar <- dashboardSidebar(
+                    sidebarMenu (
+                      menuItem("Inicio",startExpanded = TRUE, icon = icon("home",verify_fa = FALSE),
+                               href = "https://bosquesecocienciaygestion.cedia.edu.ec/"),
+                      menuItem("BioData",startExpanded = TRUE, icon = icon("list-alt",verify_fa = FALSE),
+                               tabName = "BioData"),
+                      menuItem("DataMapas",startExpanded = TRUE, icon = icon("map-marked-alt",verify_fa = FALSE), 
+                               tabName = "DataMapas"), 
+                      menuItem("DataGráficos",startExpanded = TRUE, icon = icon("file-image",verify_fa = FALSE),
+                               tabName = "DataGráficos"),
+                      menuItem("DataConceptos",startExpanded = TRUE, icon = icon("archive",verify_fa = FALSE),
+                               tabName = "DataConceptos")
+                                                   )
+)
+
+
+body <- dashboardBody(
+  
+    tabItems(
+      #BioData----
+      tabItem(tabName = "BioData",
+              box(title= "Prólogo", solidHeader = TRUE,status="primary",
+                  width = 12, height = 950, 
+                  "BioData es una propuesta de sistematización de la producción científica 
+                  que se da en los bosques tropicales estacionalmente secos (BTES) y sus zonas de
+                  influencia. Esperamos que BioData se convierta en una herramienta que permita a 
+                  los tomadores de decisión tener acceso a información científica y generar propuestas 
+                  de manejo basadas en evidencias científicas.",
+br(),br(),
+                  "Adicionalmente, esperamos que sea una plataforma donde los investigadores 
+                  puedan acceder a información sobre los vacios de investigación tanto espacial, 
+                  como entemáticas."
+              ),
+
+box(title= "Estructura", solidHeader = TRUE,status="primary",
+    width = 12, height = 950, 
+    "BioData esta organizado en 5 partes que permitirán explorar la información 
+    científica producida en le región, pero también aportar a completar esta información.",
+    br(), br(),
+
+   column(width = 3) ,column(width = 9,"DataMapas, nos permitirá analizar espacialmente donde se ha realizado investigaciones,
+    en esta sección podrás filtrar los trabajos científicos y centrarte en aquellos que son de interés."),
+    br(), br(),
+
+    "DataGráficos, en esta sección podrás analizar las tendencias de la producción científica en el
+      tiempo, además, podrás evaluar que temáticas son abordadas dentro de cada grupo.",
+    
+    br(), br(),
+
+    "DatosConceptos, en esta sección hemos organizado la información para evaluar las 
+    palabras más frecuentes usadas en los artículos y los autores con mayor producción
+    científica. Además podrás analizar las redes de colaboración entre los diferentes autores, 
+    lo que te permitirá identificar los grupos de investigación activos",
+    
+    br(),br(),
+
+    "DataDatos, en esta sección podrás obtener información de los artículos que se han 
+    producido o podrás verificar si tus artículos se encuentran subidos a la base de datos.",
+    br(), br(),
+
+    "DataSum, en esta sección podrás aportar a la base de datos, si consideras que hay 
+    articulos que no se han subido a la base de datos puedes ayudarnos a subir información
+    que será verificada y complementada para que forme parte de esta base de datos"
+    
+
+)
+      ),
+      
+    #Mapas----
+        tabItem(tabName = "DataMapas",
+            box(width = 3, height = "500px",  title = "Selecciona los filtros:", solidHeader = TRUE,status="primary",
+                
+              selectInput(inputId = "map", label = strong("Tipo de mapa"),
+                          choices = c("Ocurrencia", "Densidad"),
+                          selected = "Ocurrencia"),
+              
+              selectInput(inputId = "type", label = strong("Mostrar por Clase"),
+                          choices = c("TOTAL", as.character(unique(dta$Clase))),
+                          selected = "TOTAL"),
+              
+              selectInput(inputId = "pais", label = strong("Mostrar por País"),
+                          choices = c("TOTAL", "Ecuador", "Peru"),
+                          selected = "TOTAL"),
+              
+              selectInput(inputId = "eco", label = strong("Mostrar por Ecoregión"),
+                          choices = c("TOTAL", "Bosques secos", "Bosques lluviosos"),
+                          selected = "TOTAL"),
+
+
+              br(),
+              br(),
+              br(),
+              
+                            h4(strong("Nota:")),
+                            
+                            h6("Puedes usar los filtros para hacer énfasis en aquella información que es de interés."),
+                               
+                               h6("Explora los puntos y obtén información de cada uno de ellos")
+                               ),
+            
+            box(title= "Concentracion de Estudios", solidHeader = TRUE,status="primary",
+                width = 9, height = 950, 
+                 plotlyOutput("distPlot", height = "430px"),
+                footer = h6("La densidad es calculada como la acumulacion de estudios en un determinado sitio. 
+                            Puedes usar las herramientas del gráfico para hacer zoom en una Área específica")
+            )
+            ),
+    
+    ##Graficos ----
+    
+    tabItem(tabName = "DataGráficos",
+            valueBoxOutput("progressBox",width = 2),
+            valueBoxOutput("progressBox1",width = 2),
+            valueBoxOutput("progressBox2",width = 2),
+            valueBoxOutput("progressBox3",width = 2),
+            valueBoxOutput("progressBox4",width = 2),
+            valueBoxOutput("progressBox5",width = 2),
+           
+              column(width = 4,
+                    selectInput(inputId = "pais1", label = strong("Mostrar por País"),
+                            choices = c("TOTAL", "Ecuador", "Perú"),
+                            selected = "TOTAL")
+                    ),
+              column(width = 4,
+                    selectInput(inputId = "eco1", label = strong("Mostrar por Ecoregión"),
+                            choices = c("TOTAL", "Bosques secos", "Bosques lluviosos"),
+                            selected = "TOTAL")
+                    )
+            
+            ,
+            
+            box(width = 6, height = 240,
+                plotlyOutput("distPlot2", height = "310px")),
+            box(width = 6, height = 340,
+                plotlyOutput("distPlot3", height = "310px"))
+            
+      ),
+    
+    ##Conceptos----
+    
+    tabItem(tabName = "DataConceptos",
+
+           box(title = "Selecciona los filtros:", solidHeader = TRUE,status="primary", width = 12,
+               column(width = 3,
+                   selectInput(inputId = "pais2", label = strong("Mostrar por País"),
+                               choices = c("TOTAL", "Ecuador", "Perú"),
+                               selected = "TOTAL")
+                      ),
+            column(width = 3,
+                   selectInput(inputId = "eco2", label = strong("Mostrar por Ecoregión"),
+                               choices = c("TOTAL", "Bosques secos", "Bosques lluviosos"),
+                               selected = "TOTAL")
+                    ),
+            column(width = 3,
+                    selectInput(inputId = "type2", label = strong("Mostrar por Clase"),
+                               choices = c("TOTAL", as.character(unique(dta$Clase))),
+                               selected = "TOTAL")
+                   ),
+            
+            column(width = 1,
+                   radioButtons(inputId = "red", label = "Redes", choices = c("On", "Off"),
+                                selected = "Off" )),
+            column(width = 2,       
+                   h5(strong("Nota:")),
+                   h6("Selecciona 'on' para ver las redes de autores")
+                   )
+              ),
+           
+           box(solidHeader = TRUE,status="primary", width = 3,
+               
+               sliderInput("freq",
+                           "Frecuencia:",
+                           min = 1,  max = 40, value = 3),
+               sliderInput("max",
+                           "Número:",
+                           min = 1,  max = 150,  value = 70),
+               selectInput("aut", "Autores", 
+                           choices = seq(5,25, by= 5), selected = 5),
+               
+               h6(strong("Nota:")),
+               
+               h6("Usa Frecuencia para limitar las palabras con esa frecuencia mínima.
+                  Usa Número para limitar el número de palabras en el gráfico. Usa Autores 
+                  para cambiar el filtro de autores en la red", style = "font-size:9px;")
+                  ),
+
+            box(width = 4, height = 400, title = "Resumen",
+                plotOutput("textPlot2", height = "330px")),
+            
+           box(title = "Autores",
+                width = 5, 
+                plotOutput("textPlot3", height = "330px"))
+
+         )
+    
+                     )
+                   )
+
+##UI ---
+
+ui <- dashboardPage(header, sidebar, body,)
+
+server <- function(input, output) {
+  
+  output$distPlot <- renderPlotly({
+    # generate bins based on input$bins from ui.R
+    #Puntos ----
+    library(plotly)
+    library(dplyr)
+    Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1IjoiY2llc3Bpbm9zYSIsImEiOiJjbDJob3l4MnowNGUyM2Nta2xkdHo5MmZ0In0.KbWKGL08hRc9bQAqX6TIEg')
+    
+    
+  
+    if(input$type!="TOTAL"){
+      dta1 <- dta1 %>% subset(Clase==input$type)}
+    
+    if(input$pais!="TOTAL"){
+      
+      dta1 <- dta1[which(dta1$Pais==input$pais),]
+      
+    }
+    
+    if(input$eco=="Bosques secos"){
+      
+      dta1 <- dta1[dta1$Bioma =="Bosques secos",]
+    }
+    if(input$eco=="Bosques lluviosos"){
+      
+      dta1 <- dta1[dta1$Bioma =="Bosques lluviosos",]
+    }
+    
+    if(input$map == "Densidad"){
+      
+      fig <- as.data.frame(dta1) 
+      fig <- fig %>%
+        plot_ly(
+          type = 'densitymapbox',
+          lat = ~X,
+          lon = ~Y,
+          coloraxis = 'coloraxis',
+          radius = 2,
+          height = 460,
+          width = 800)
+      
+    }
+    
+    if(input$map == "Ocurrencia"){
+      
+      dta1 <- as.data.frame(dta1)
+      
+      fig <- plot_ly(dta1, lat = ~X, lon = ~Y,
+          type = 'scattermapbox',
+          text = paste("Código: ", dta1$Codigo, 
+                       "<br>Clase: ", dta1$Clase,
+                       "<br>Temática: ", dta1$Tematica,
+                       "<br>Bioma: ", dta1$filtroE),
+          hoverinfo = 'text',
+          mode = 'markers',
+          color = dta1$Clase,
+          height = 460,
+          width = 800
+        ) 
+    }
+    
+    fig <- fig %>%
+      layout(
+        mapbox = list(
+          style = 'open-street-map',
+          zoom =7.5,
+          center = list(lon = -77, lat = -2.8)),
+        coloraxis = list(colorscale = "Rainbow"), geo =g)
+    
+    plotly_build( fig)
+    
+  })
+
+  
+  ##Second chart----
+  
+  output$progressBox <- renderValueBox({
+    
+    if(input$eco1=="TOTAL" & input$pais1!="TOTAL"){
+      dfTot <- dta %>% 
+                subset(Pais==input$pais1) %>% 
+                group_by(Clase) %>% 
+                summarise(n =n() )
+        
+    }
+    
+    if(input$eco1!="TOTAL" & input$pais1=="TOTAL"){
+        dfTot <- dta %>% 
+                  subset(Bioma==input$eco1) %>% 
+                  group_by(Clase) %>% 
+                  summarise(n =n() )
+    }
+    
+    if(input$eco1!="TOTAL" & input$pais1!="TOTAL"){
+     dfTot <- dta %>% 
+                subset(Bioma==input$eco1 & Pais==input$pais1) %>% 
+                group_by(Clase) %>% 
+                summarise(n =n() )
+    }
+    
+    if(input$eco1=="TOTAL" & input$pais1=="TOTAL"){
+      dfTot <- dta  %>%
+        distinct(Codigo, Clase)%>% 
+        group_by(Clase) %>% 
+        summarise(n =n())
+    }
+    
+    dfTot1 <- as.vector(t(dfTot[,-1]))
+    names(dfTot1) <- (dfTot[["Clase"]])
+    
+      valueBox(
+      dfTot1["AVES"], h4("Aves"), icon = icon("crow"),
+      color = "blue"
+    )
+  })
+  
+  output$progressBox1 <- renderValueBox({
+    if(input$eco1=="TOTAL" & input$pais1!="TOTAL"){
+      dfTot <- dta %>% 
+        subset(Pais==input$pais1) %>% 
+        group_by(Clase) %>% 
+        summarise(n =n() )
+      
+    }
+    
+    if(input$eco1!="TOTAL" & input$pais1=="TOTAL"){
+      dfTot <- dta %>% 
+        subset(Bioma==input$eco1) %>% 
+        group_by(Clase) %>% 
+        summarise(n =n() )
+    }
+    
+    if(input$eco1!="TOTAL" & input$pais1!="TOTAL"){
+      dfTot <- dta %>% 
+        subset(Bioma==input$eco1 &Pais==input$pais1) %>% 
+        group_by(Clase) %>% 
+        summarise(n =n() )
+    }
+    
+    if(input$eco1=="TOTAL" & input$pais1=="TOTAL"){
+      dfTot <- dta %>% 
+        group_by(Clase) %>% 
+        summarise(n =n() )
+    }
+    
+    dfTot1 <- as.vector(t(dfTot[,-1]))
+    names(dfTot1) <- (dfTot[["Clase"]])
+    
+        valueBox(
+      dfTot1["AMPHIBIA"], h4("Anfibios"), icon = icon("frog"),
+      color = "olive"
+    )
+    
+  })
+  
+  output$progressBox2 <- renderValueBox({
+    if(input$eco1=="TOTAL" & input$pais1!="TOTAL"){
+      dfTot <- dta %>% 
+        subset(Pais==input$pais1) %>% 
+        group_by(Clase) %>% 
+        summarise(n =n() )
+      
+    }
+    
+    if(input$eco1!="TOTAL" & input$pais1=="TOTAL"){
+      dfTot <- dta %>% 
+        subset(Bioma==input$eco1) %>% 
+        group_by(Clase) %>% 
+        summarise(n =n() )
+    }
+    
+    if(input$eco1!="TOTAL" & input$pais1!="TOTAL"){
+      dfTot <- dta %>% 
+        subset(Bioma==input$eco1 &Pais==input$pais1) %>% 
+        group_by(Clase) %>% 
+        summarise(n =n() )
+    }
+    
+    if(input$eco1=="TOTAL" & input$pais1=="TOTAL"){
+      dfTot <- dta  %>%
+        distinct(Codigo, Clase)%>% 
+        group_by(Clase) %>% 
+        summarise(n =n())
+    }
+    
+    dfTot1 <- as.vector(t(dfTot[,-1]))
+    names(dfTot1) <- (dfTot[["Clase"]])
+    
+    valueBox(
+      dfTot1["MAMMALIA"], h4("Mamíferos"), icon = icon("otter"),
+      color = "light-blue"
+    )
+  })
+  
+  output$progressBox3 <- renderValueBox({
+    if(input$eco1=="TOTAL" & input$pais1!="TOTAL"){
+      dfTot <- dta %>% 
+        subset(Pais==input$pais1) %>% 
+        group_by(Clase) %>% 
+        summarise(n =n() )
+      
+    }
+    
+    if(input$eco1!="TOTAL" & input$pais1=="TOTAL"){
+      dfTot <- dta %>% 
+        subset(Bioma==input$eco1) %>% 
+        group_by(Clase) %>% 
+        summarise(n =n() )
+    }
+    
+    if(input$eco1!="TOTAL" & input$pais1!="TOTAL"){
+      dfTot <- dta %>% 
+        subset(Bioma==input$eco1 &Pais==input$pais1) %>% 
+        group_by(Clase) %>% 
+        summarise(n =n() )
+    }
+    
+    if(input$eco1=="TOTAL" & input$pais1=="TOTAL"){
+      dfTot <- dta  %>%
+        distinct(Codigo, Clase)%>% 
+        group_by(Clase) %>% 
+        summarise(n =n())
+    }
+    
+    dfTot1 <- as.vector(t(dfTot[,-1]))
+    names(dfTot1) <- (dfTot[["Clase"]])
+    
+    valueBox(
+      dfTot1["PECES"], h4("Peces"), icon = icon("fish"),
+      color = "aqua"
+    )
+  })
+  
+  output$progressBox4 <- renderValueBox({
+    if(input$eco1=="TOTAL" & input$pais1!="TOTAL"){
+      dfTot <- dta %>% 
+                  subset(Pais==input$pais1) %>% 
+                  group_by(Clase) %>% 
+                  summarise(n =n() )
+      
+    }
+    
+    if(input$eco1!="TOTAL" & input$pais1=="TOTAL"){
+      dfTot <- dta %>% 
+        subset(Bioma==input$eco1) %>% 
+        group_by(Clase) %>% 
+        summarise(n =n() )
+    }
+    
+    if(input$eco1!="TOTAL" & input$pais1!="TOTAL"){
+      dfTot <- dta %>% 
+                subset(Bioma==input$eco1 &Pais==input$pais1) %>% 
+                group_by(Clase) %>% 
+                summarise(n =n() )
+    }
+    
+    if(input$eco1=="TOTAL" & input$pais1=="TOTAL"){
+      dfTot <- dta  %>%
+                  distinct(Codigo, Clase)%>% 
+                  group_by(Clase) %>% 
+                  summarise(n =n())
+    }
+    
+    dfTot1 <- as.vector(t(dfTot[,-1]))
+    names(dfTot1) <- (dfTot[["Clase"]])
+    
+    valueBox(
+      dfTot1["REPTILIA"], h4("Reptiles"), icon = icon("suse"),
+      color = "yellow"
+    )
+    
+  })
+  
+  output$progressBox5 <- renderValueBox({
+    if(input$eco1=="TOTAL" & input$pais1!="TOTAL"){
+      dfTot <- dta %>% 
+        subset(Pais==input$pais1) %>% 
+        group_by(Clase) %>% 
+        summarise(n =n() )
+      
+    }
+    
+    if(input$eco1!="TOTAL" & input$pais1=="TOTAL"){
+      dfTot <- dta %>% 
+        subset(Bioma==input$eco1) %>% 
+        group_by(Clase) %>% 
+        summarise(n =n() )
+    }
+    
+    if(input$eco1!="TOTAL" & input$pais1!="TOTAL"){
+      dfTot <- dta %>% 
+        subset(Bioma==input$eco1 &Pais==input$pais1) %>% 
+        group_by(Clase) %>% 
+        summarise(n =n() )
+    }
+    
+    if(input$eco1=="TOTAL" & input$pais1=="TOTAL"){
+      dfTot <- dta  %>%
+                  distinct(Codigo, Clase)%>% 
+                  group_by(Clase) %>% 
+                  summarise(n =n())
+    }
+    
+    dfTot1 <- as.vector(t(dfTot[,-1]))
+    names(dfTot1) <- (dfTot[["Clase"]])
+    
+    valueBox(
+      dfTot1["PLANTAE"], h4("Plantas"), icon = icon("seedling"),
+      color = "green"
+    )
+    
+  })
+  
+  
+  output$distPlot2 <- renderPlotly({
+    dta$Clase <- as.factor(dta$Clase)
+    if(input$eco1=="TOTAL" & input$pais1!="TOTAL"){
+      dfT <- dta %>% subset(Pais==input$pais1) %>% 
+                      dcast(Clase~year)
+      
+    }
+    
+    if(input$eco1!="TOTAL" & input$pais1=="TOTAL"){
+      dfT <- dta %>% 
+                subset(Bioma==input$eco1) %>% 
+                dcast(Clase~year) 
+    }
+    if(input$eco1!="TOTAL" & input$pais1!="TOTAL"){
+      dfT <- dta %>% 
+                subset(Bioma==input$eco1 &Pais==input$pais1) %>% 
+                dcast(Clase~year) 
+    }
+    
+    if(input$eco1=="TOTAL" & input$pais1=="TOTAL"){
+      dfT <- dta %>% 
+              dcast(Clase~year)
+    }
+    
+    dfTt <- as.data.frame(t(dfT[,-1]))
+    colnames(dfTt) <- dfT[,1]
+      
+    fig1 <- plot_ly(dfTt, x = ~rownames(dfTt), y = ~AVES, type = 'bar',
+                      name = "Aves",
+                      height = 310)
+    ifelse(colSums(dfTt)["AMPHIBIA"]>0,
+      fig1 <- fig1 %>% add_trace(y = ~AMPHIBIA, name = "Anfibios"),
+      fig1 <- fig1)
+    
+    ifelse(colSums(dfTt)["MAMMALIA"]>0,
+      fig1 <- fig1 %>% add_trace(y = ~MAMMALIA, name = "Mamíferos"),
+      fig1 <- fig1)
+    
+    ifelse(colSums(dfTt)["PECES"]>0,
+      fig1 <- fig1 %>% add_trace(y = ~PECES, name = "Peces"),
+      fig1 <- fig1)
+    
+    ifelse(colSums(dfTt)["REPTILIA"]>0,
+      fig1 <- fig1 %>% add_trace(y = ~REPTILIA, name = "Reptiles"),
+      fig1 <- fig1)
+    
+    ifelse(colSums(dfTt)["PLANTAE"]>0,
+      fig1 <- fig1 %>% add_trace(y = ~PLANTAE, name = "Plantas"),
+      fig1 <- fig1)
+    
+      fig1 <- fig1 %>% layout(yaxis = list(title = 'Número',
+                                           tickfont = list(size = 8)),
+                              xaxis = list(title = "Año de Publicación",
+                                           tickfont = list(size = 8)),
+                              legend = list(x = .05, y = .99,
+                                            font = list(
+                                family = "sans-serif",
+                                size = 8),
+                                title=list(text='<b>Grupo taxonómico </b>',
+                                           font = list(size = 9))),
+                              margin = list(l = 30, r = .20, b = 30, t = .10))
+      fig1
+
+  })
+  
+
+      output$distPlot3 <- renderPlotly({
+        
+        if(input$eco1=="TOTAL" & input$pais1!="TOTAL"){
+          dta1.1 <- dta %>% subset(Pais==input$pais1)
+          dfT1 <- dcast(dta1.1, Tematica~Clase)[-9,]
+
+        }
+
+        if(input$eco1!="TOTAL" & input$pais1=="TOTAL"){
+          dta1.1 <- dta %>% subset(Bioma==input$eco1)
+          dfT1 <- dcast(dta1.1, Tematica~Clase)[-9,]
+        }
+        if(input$eco1!="TOTAL" & input$pais1!="TOTAL"){
+          dta1.1 <- dta %>% subset(Bioma==input$eco1 &Pais==input$pais1)
+          dfT1 <- dcast(dta1.1, Tematica~Clase)[-9,]
+        }
+
+        if(input$eco1=="TOTAL" & input$pais1=="TOTAL"){
+          dfT1 <- dcast(dta, Tematica~Clase)[-9,]
+        }
+  
+  fig2 <- plot_ly(dfT1, x = ~Tematica , y = ~AVES, type = 'bar',
+                name = "Aves",
+                height = 310)
+  ifelse(colSums(dfT1[,-1])["AMPHIBIA"]>0,
+    fig2 <- fig2 %>% add_trace(y = ~AMPHIBIA, name = "Anfibios"),
+    fig2 <- fig2)
+  ifelse(colSums(dfT1[,-1])["MAMMALIA"]>0,
+    fig2 <- fig2 %>% add_trace(y = ~MAMMALIA, name = "Mamíferos"),
+    fig2 <- fig2)
+  ifelse(colSums(dfT1[,-1])["PECES"]>0,
+    fig2 <- fig2 %>% add_trace(y = ~PECES, name = "Peces"),
+    fig2 <- fig2)
+  ifelse(colSums(dfT1[,-1])["REPTILIA"]>0,
+    fig2 <- fig2 %>% add_trace(y = ~REPTILIA, name = "Reptiles"),
+    fig2 <- fig2)
+  ifelse(colSums(dfT1[,-1])["PLANTAE"]>0,
+    fig2 <- fig2 %>% add_trace(y = ~PLANTAE, name = "Plantas"),
+    fig2 <- fig2)
+  
+    fig2 <- fig2 %>% layout(yaxis = list(title = 'Número',
+                                       tickfont = list(size = 8)),
+                          xaxis = list(title = "",
+                                       tickfont = list(size = 8)),
+                          legend = list(x = .8, y = .99,
+                                        font = list(
+                                          family = "sans-serif",
+                                          size = 8),
+                                        title=list(text='<b>Grupo taxonómico </b>',
+                                                   font = list(size = 9))),
+                          margin = list(l = 30, r = .20, b = 50, t = .10))
+  fig2
+        
+       
+    
+    })
+      
+  
+      
+  # #Third chart -----
+
+      output$textPlot2 <- renderPlot({
+
+        if(input$eco2=="TOTAL" & input$pais2!="TOTAL" & input$type2=="TOTAL"){
+          dta1.1 <- dta %>% subset(Pais==input$pais2)
+        }
+
+        if(input$eco2=="TOTAL" & input$pais2=="TOTAL"& input$type2!="TOTAL"){
+          dta1.1 <- dta%>% subset(Clase==input$type2)
+        }
+
+        if(input$eco2!="TOTAL" & input$pais2=="TOTAL" & input$type2=="TOTAL"){
+          dta1.1 <- dta %>% subset(Bioma==input$eco2)
+        }
+
+        if(input$eco2!="TOTAL" & input$pais2!="TOTAL"& input$type2=="TOTAL"){
+          dta1.1 <- dta%>% subset(Bioma==input$eco2 & Pais==input$pais2)
+          }
+
+        if(input$eco2!="TOTAL" & input$pais2=="TOTAL" & input$type2!="TOTAL"){
+          dta1.1 <- dta %>% subset(Bioma==input$eco2 &Clase==input$type2)
+        }
+
+        if(input$eco2=="TOTAL" & input$pais2!="TOTAL" & input$type2!="TOTAL"){
+          dta1.1 <- dta %>% subset(Clase==input$type2 & Pais==input$pais2)
+        }
+        
+        if(input$eco2!="TOTAL" & input$pais2!="TOTAL" & input$type2!="TOTAL"){
+          dta1.1 <- dta %>% subset(Bioma==input$eco2 &Clase==input$type2 & Pais==input$pais2)
+        }
+
+        if(input$eco2=="TOTAL" & input$pais2=="TOTAL" & input$type2=="TOTAL"){
+          dta1.1 <- dta
+        }
+
+
+        library(tm)
+        library(stringr)
+        library(wordcloud)
+        library(memoise)
+        library(shiny)
+
+
+        textR <- str_c(na.omit(dta1.1$Resumen), collapse = " ")
+        textT <- str_c(na.omit(dta1.1$Titulo), collapse = " ")
+
+        textRT <- str_c(textR, textT, collapse = " ")
+
+        ptd <- PlainTextDocument(textRT,id = basename(tempfile()))
+
+
+        myText <- Corpus(VectorSource(ptd))
+        myText = tm_map(myText, tolower)
+        myText <- tm_map(myText, removePunctuation)
+        myText = tm_map(myText, removeNumbers)
+        myText = tm_map(myText, removeWords, stopwords("spanish"))
+        myText <- tm_map(myText, stemDocument)
+        myText = tm_map(myText, removeWords, stopwords("english"))
+        myText = tm_map(myText, removeWords, c("two","first","perú",
+                                               "ecuador", "peru", "aplica", "species", "speci"))
+
+        myText <- tm_map(myText, PlainTextDocument)
+
+
+        myDTM = TermDocumentMatrix(myText)
+
+
+        m = as.matrix(myDTM)
+        
+        v = sort(rowSums(m), decreasing = TRUE)
+        
+        
+        source(file = "3._script/Respaldos/aggregate.R", encoding = "UTF-8")
+        
+        v1 <- aggregate.plurals(v)
+        
+        #install.packages('wordcloud')
+        library(wordcloud)
+
+        # Finalmente creamos la nube:
+
+        par(mar=c(0,0,0,0))
+        wordcloud_rep <- repeatable(wordcloud)
+        wordcloud_rep(names(v1), v1, scale=c(2.3,0.1),
+                      min.freq = input$freq, max.words=input$max,
+                      colors=brewer.pal(8, "Dark2"))
+
+
+      })
+
+      output$textPlot3 <- renderPlot({
+        if(input$eco2=="TOTAL" & input$pais2!="TOTAL" & input$type2=="TOTAL"){
+          dta1.1 <- dta %>% subset(Pais==input$pais2)
+        }
+
+        if(input$eco2=="TOTAL" & input$pais2=="TOTAL"& input$type2!="TOTAL"){
+          dta1.1 <- dta%>% subset(Clase==input$type2)
+        }
+
+        if(input$eco2!="TOTAL" & input$pais2=="TOTAL" & input$type2=="TOTAL"){
+          dta1.1 <- dta %>% subset(Bioma==input$eco2)
+        }
+
+        if(input$eco2!="TOTAL" & input$pais2!="TOTAL"& input$type2=="TOTAL"){
+          dta1.1 <- dta%>% subset(Bioma==input$eco2 & Pais==input$pais2)
+        }
+
+        if(input$eco2!="TOTAL" & input$pais2=="TOTAL" & input$type2!="TOTAL"){
+          dta1.1 <- dta %>% subset(Bioma==input$eco2 &Clase==input$type2)
+        }
+
+        if(input$eco2=="TOTAL" & input$pais2!="TOTAL" & input$type2!="TOTAL"){
+          dta1.1 <- dta %>% subset(Clase==input$type2 & Pais==input$pais2)
+        }
+        
+        if(input$eco2!="TOTAL" & input$pais2!="TOTAL" & input$type2!="TOTAL"){
+          dta1.1 <- dta %>% subset(Bioma==input$eco2 &Clase==input$type2 & Pais==input$pais2)
+        }
+        
+        if(input$eco2=="TOTAL" & input$pais2=="TOTAL" & input$type2=="TOTAL"){
+          dta1.1 <- dta
+        }
+
+       if(input$red == "Off"){
+        library(tm)
+        library(stringr)
+        library(wordcloud)
+        library(memoise)
+        library(shiny)
+        library(tidyr)
+        library(stringi)
+        library(dplyr)
+        
+        autor <- dta1.1 %>%
+                      distinct(Codigo, Autor) %>% 
+                       separate("Autor", into = paste0("autor", 1:20), ";") 
+                    
+        
+        for(i in 2:ncol(autor)){
+          autor[,i] <- stri_trim(autor[,i])
+          autor[,i] <- gsub(" ", "_", autor[,i])
+          autor[,i] <- stri_replace_all_charclass(autor[,i],"[.]", "")
+          autor[,i] <- stri_replace_all_charclass(autor[,i],"[-]", "_")
+        }            
+        
+        autor <- autor %>% 
+                    unite("autores", autor1:autor20,sep = " ", na.rm = TRUE, remove = FALSE)
+        
+        textA <- str_c(autor$autores, collapse = " ")
+        myTextA <- Corpus(VectorSource(textA))
+        myDTMA <- DocumentTermMatrix(myTextA, control=list(tolower=FALSE))
+        myDTMA <- tm::TermDocumentMatrix(myTextA, control=list(tolower=FALSE))
+
+
+        mA = as.matrix(myDTMA)
+
+        vA = sort(rowSums(mA), decreasing = TRUE)
+
+          set.seed(25)
+
+        # Finalmente creamos la nube:
+         
+        # par(mar=c(0,0,0,0))
+        # wordcloud_rep <- repeatable(wordcloud)
+        # wordcloud_rep(names(vA), vA, scale=c(2.3,0.1),
+        #               min.freq = 4, max.words=70,
+        #               colors=brewer.pal(8, "Dark2"))
+
+        par(mar=c(0,0,0,0))
+        wordcloud_rep <- repeatable(wordcloud)
+        wordcloud_rep(names(vA), vA, scale=c(2.3,0.1),
+                      min.freq = input$freq, max.words=input$max,
+                      colors=brewer.pal(8, "Dark2"))
+
+      
+}      
+      
+       if(input$red=="On"){
+         library(reshape2)
+         library(igraph)
+         library(tnet)
+         library(tm)
+         library(stringr)
+         library(wordcloud)
+         library(memoise)
+         library(shiny)
+         library(tidyr)
+         library(stringi)
+         library(dplyr)
+         library(ggraph)
+         
+         
+         autor <- dta1.1 %>%
+           distinct(Codigo, Autor) %>% 
+           separate("Autor", into = paste0("autor", 1:20), ";") 
+         
+         
+         for(i in 2:ncol(autor)){
+           autor[,i] <- stri_trim(autor[,i])
+           autor[,i] <- gsub(" ", "_", autor[,i])
+           autor[,i] <- stri_replace_all_charclass(autor[,i],"[.]", "")
+           autor[,i] <- stri_replace_all_charclass(autor[,i],"[-]", "_")
+         } 
+         
+         autor1 <- autor %>% 
+           filter(!is.na(autor2))
+         
+         dtaaut <- melt(autor1, id.vars = "Codigo", 
+                        variable.name = "Autors", value.name = "from") 
+         
+         
+         autF <- crossprod(table(dtaaut[,c("Codigo", "from")]))
+         
+         autF <- autF[-1,-1]
+         
+         va <- as.data.frame(autF) %>%
+           dplyr::mutate(Persona = rownames(.),
+                         Occurrences = rowSums(.)) %>%
+           dplyr::select(Persona, Occurrences) %>% 
+           dplyr::filter(Occurrences>as.numeric(input$aut))
+         
+         
+         ed <- as.data.frame(autF) %>% 
+           dplyr::mutate(from = rownames(.)) %>%
+           tidyr::gather(to, Frequency, 1:ncol(autF)) %>%
+           dplyr::mutate(Frequency = ifelse(Frequency == 0, NA, Frequency))
+         
+         ed <- ed %>% 
+           filter(!is.na(ed$Frequency),
+                  to%in%va$Persona,
+                  from%in%va$Persona)
+         
+         ig <- igraph::graph_from_data_frame(d=ed, vertices=va, directed = FALSE)
+         
+         
+         
+         tg <- tidygraph::as_tbl_graph(ig) %>% 
+                   tidygraph::activate(nodes) %>% 
+                   dplyr::mutate(label=name)
+         
+         # set seed
+         v.size <- V(tg)$Occurrences
+         
+        # set.seed(12345)
+         
+         E(tg)$weight <- E(tg)$Frequency
+         # inspect weights
+        # head(E(tg)$weight, 10)
+         
+         # set seed
+         set.seed(123)
+         # edge size shows frequency of co-occurrence
+         tg %>%
+           ggraph(layout = "fr") +
+           geom_edge_arc(colour= "blue",
+                         lineend = "round",
+                         strength = 1,
+                         aes(edge_width = weight,
+                             alpha = weight)) +
+           geom_node_point(size=sqrt(v.size),
+                           colour=rgb(0,0,0,0.5)) +
+           geom_node_text(aes(label = name), 
+                          repel = TRUE, 
+                          point.padding = unit(0.8, "lines"), 
+                          size=log(v.size), 
+                          colour="gray10") +
+           scale_edge_width(range = c(0, 3.5)) +
+           scale_edge_alpha(range = c(0, .6)) +
+           theme_graph(background = "white") +
+           theme(legend.position = "top") +
+           guides(edge_width = FALSE,
+                  edge_alpha = FALSE)
+       }
+      
+      })
+     
+      
+
+      
+  
+}
+
+shiny::shinyApp(ui, server)

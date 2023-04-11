@@ -1,0 +1,13 @@
+name: BioData
+title:
+username:
+account: ecologiacivan
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 4215814
+bundleId: 7049094
+url: https://ecologiacivan.shinyapps.io/BioData/
+when: 1680630632.28726
+lastSyncTime: 1680630632.28726
+asMultiple: FALSE
+asStatic: FALSE

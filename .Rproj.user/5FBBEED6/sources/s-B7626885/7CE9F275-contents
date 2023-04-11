@@ -1,0 +1,39 @@
+
+
+
+mapboxToken <- paste(readLines("tokenMB.mapbox_token"), collapse="")    # You need your own token
+
+Sys.setenv("MAPBOX_TOKEN" = "pk.eyJ1IjoiY2llc3Bpbm9zYSIsImEiOiJjbDJob3l4MnowNGUyM2Nta2xkdHo5MmZ0In0.KbWKGL08hRc9bQAqX6TIEg") # for Orca
+
+
+us_cities = read.csv("https://raw.githubusercontent.com/plotly/datasets/master/us-cities-top-1k.csv")
+
+
+fig <- us_cities 
+
+fig <- fig %>%
+  
+  plot_ly(
+    
+    lat = ~lat,
+    
+    lon = ~lon,
+    
+    marker = list(color = "fuchsia"),
+    
+    type = 'scattermapbox') 
+
+fig <- fig %>%
+  
+  layout(
+    
+    mapbox = list(
+      
+      style = 'open-street-map',
+      
+      zoom =2.5,
+      
+      center = list(lon = -88, lat = 34))) 
+
+
+fig

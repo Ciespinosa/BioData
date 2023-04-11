@@ -5,9 +5,9 @@ account: ecologiacivan
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 4215814
-bundleId: 4670675
+bundleId: 7049909
 url: https://ecologiacivan.shinyapps.io/BioData/
-when: 1622674759.43566
+when: 1680645054.51583
+lastSyncTime: 1680645054.51583
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: .RData|drive.R|index.html|valueBox.R
